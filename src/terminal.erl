@@ -32,7 +32,7 @@
 	 print/2
 	]).
  
--export([ping/0
+-export([ ping/0
 	]).
 
 -export([start/0,
@@ -100,7 +100,7 @@ handle_call({ping}, _From, State) ->
     Reply={pong,node(),?MODULE},
     {reply, Reply, State};
 
-handle_call({exec,M,F,A,T}, From, State) ->
+handle_call({exec,M,F,A,T},_From, State) ->
     io:format("~p~n",[{time(),":",M,F,A,T}]),
     Reply=rpc:call(node(),M,F,A,T),
     {reply, Reply, State};

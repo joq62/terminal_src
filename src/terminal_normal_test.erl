@@ -25,7 +25,7 @@
 %% External functions
 %% ====================================================================
 test_terminals()->
-    [misc_oam:node("1_log_terminal"),
+    [misc_oam:node("terminal"),
      misc_oam:node("2_log_terminal"),
      misc_oam:node("glurk")].
      
@@ -45,9 +45,9 @@ start()->
     ?assertEqual(ok,test_1()),
     ?debugMsg("stop test_1"),
 
-   % ?debugMsg("Start test_2"),
-  %  ?assertEqual(ok,test_2()),
-  %  ?debugMsg("stop test_2"),
+    ?debugMsg("Start test_2"),
+    ?assertEqual(ok,test_2()),
+    ?debugMsg("stop test_2"),
 
 %    ?debugMsg("Start test_3"),
 %    ?assertEqual(ok,test_3(2000)),
@@ -89,6 +89,14 @@ test_3(N) ->
 %% Returns: non
 %% --------------------------------------------------------------------
 test_2()->
+    %% crash nodes 
+    Date=date(),
+    ?assertMatch({[{badrpc,_},{badrpc,_}],
+		  ['glurk@c2']},rpc:multicall(test_terminals(),erlang,date,[glurk],1000)),
+    
+    ?assertMatch({[ok,ok],['glurk@c2']},
+		 rpc:multicall(test_terminals(),terminal,print,["Survived the crash test ~n"])),
+    
     
     ok.
 %% --------------------------------------------------------------------
@@ -97,6 +105,7 @@ test_2()->
 %% Returns: non
 %% --------------------------------------------------------------------
 test_1()->
+ 
     Date=date(),
     ?assertMatch({[Date,Date],
 		  ['glurk@c2']},rpc:multicall(test_terminals(),erlang,date,[],1000)),
@@ -108,6 +117,8 @@ test_1()->
     ?assertMatch({[ok,ok],['glurk@c2']},
 		   rpc:multicall(test_terminals(),terminal,print,["Text1 ~p~n",[{node(),?MODULE,?LINE}]])),
 
+    ?assertMatch(['terminal@c2'],
+		 misc_oam:get_log_terminals()),
     
     
     ok.
@@ -117,7 +128,7 @@ test_1()->
 %% Returns: non
 %% --------------------------------------------------------------------
 setup()->
-    
+  
     ok.
 
 %% --------------------------------------------------------------------
